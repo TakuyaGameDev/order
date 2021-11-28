@@ -28,7 +28,7 @@
         }
 
 
-        // 在庫追加
+        // 在庫数追加
         public function stock_up($stock_add,$id)
         {
             try{
@@ -89,8 +89,16 @@
                     $error = "＊{$name}は存在します";
                     return $error;
                 }else{
-                    $sql = "INSERT INTO ".$this->table."(name,stock_count,class,created_at) VALUES (:name,:count,:class,now())";
+                    // 欠番探す
+                    $sql = "SELECT MIN( id + 1 ) AS id FROM ".$this->table." WHERE ( id + 1 ) NOT IN ( SELECT id FROM ".$this->table.") ";
                     $sth = $this->dbh->prepare($sql);
+                    $sth->execute();
+                    $id = $sth->fetch(PDO::FETCH_ASSOC);
+
+                    // 欠番へ挿入
+                    $sql = "INSERT INTO ".$this->table."(id,name,stock_count,class,created_at) VALUES (:id,:name,:count,:class,now()) ";
+                    $sth = $this->dbh->prepare($sql);
+                    $sth->bindParam(':id', $id['id'], PDO::PARAM_INT);
                     $sth->bindParam(':name', $name, PDO::PARAM_STR);
                     $sth->bindParam(':count', $count, PDO::PARAM_INT);
                     $sth->bindParam(':class', $class,PDO::PARAM_INT);
