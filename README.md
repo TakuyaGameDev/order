@@ -21,4 +21,4 @@ XAMPP/MySQL/PHP
 
 ## データベース:globe_with_meridians:
 - データベース名：orderapp
-- お使いのphpMyAdminに上記ファイル（orderappDB.sql）をインポートしていただければお使いになれると思います。
+- お使いのphpMyAdminに上記ファイル（orderapp.sql）をインポートしていただければお使いになれると思います。
