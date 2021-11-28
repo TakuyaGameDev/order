@@ -1,0 +1,8 @@
+.header{
+    background-repeat: no-repeat;
+    background-image: linear-gradient(rgb(248, 246, 246), rgb(192, 190, 190));
+}
+
+.menu a{
+    background-color: whitesmoke;
+}
