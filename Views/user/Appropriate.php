@@ -4,8 +4,6 @@
     if(empty($_SESSION['id']) || $_SESSION['id'] == 1){
         header('Location:login.php');
     }
-    // 商品名読み込み
-    require_once(ROOT_PATH .'Views/other/num_name.php');
 
     // 日付
     require_once(ROOT_PATH .'Views/other/date.php');
@@ -22,11 +20,8 @@
     
     require_once(ROOT_PATH .'Controllers/StockController.php');
     $stock = new StockController();
-    // 在庫抽出
-    // $params = $stock->stock();
-    // 適正実験
-    $results = $order->AppropriateAll();
-    // var_dump($results);
+    // 商品一覧
+    $params = $stock->stock();
     
 ?>
 <!-- Ajax -->
@@ -63,12 +58,15 @@
                             <th colspan="2" class="text-center"><?php echo $ago[$i]."<br>"."先週使用量/適正量" ?></th> 
                         <?php endfor; ?>
                     </tr>
-                    <?php for ($x=1; $x <= 10; $x++) :?>
+                    <?php for ($x=1; $x <= 100; $x++) :?>
+                        <?php if(empty($params['stock'][$x-1]['name'])) :?>
+                            <?php continue ?>
+                        <?php endif; ?>
                         <tr class="fs-5 text-center" >
-                            <td style="width: 20%;"><?php echo $name[$x]; ?></td>
+                            <td style="width: 20%;"><?php echo $params['stock'][$x-1]['name']?></td>
                             <?php for ($i=0; $i <= 6; $i++) :?>
                                 <!-- 使用量 -->
-                                <td style="width: 5%;"><?php echo $useds['used'][$x][$i] ?></td>
+                                <td style="width: 5%;"><?php if(isset($useds['used'][$x][$i])){echo $useds['used'][$x][$i];}else{echo 0;} ?></td>
                                 <!-- 適正量 -->
                                 <td style="width: 6%;"><input type="number" class="Appropriate<?php echo $x.'_'.$i;?>" name="Appropriate<?php echo $x.'_'.$i;?>" style="width: 50px;" value="<?php if(isset($params['Appropriate'][$x-1][$i]['Appropriate_count'])){echo $params['Appropriate'][$x-1][$i]['Appropriate_count'];}else{echo 0;} ?>"></td>
                             <?php endfor; ?>                        

@@ -75,7 +75,7 @@ class OrderController {
         $Appropriate = 'Appropriate';
         $under = '_';
 
-        for ($x=1; $x <= 10; $x++) { 
+        for ($x=1; $x <= 100; $x++) { 
             for ($i=0; $i <= 6; $i++) {
                 if(isset($_POST["$Appropriate$x$under$i"])){
                     if($_POST["$Appropriate$x$under$i"] < 0){

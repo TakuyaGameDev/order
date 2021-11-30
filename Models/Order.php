@@ -309,7 +309,7 @@ class Order extends Db{
 
         try{
             // 全ての商品1週間分
-            for ($x=1; $x <= 10; $x++) { 
+            for ($x=1; $x <= 100; $x++) { 
                 for ($i=0; $i <= 6; $i++) { 
                     $date = date("Y-m-d", strtotime("$i day"));
                     $sql = "SELECT Appropriate_count FROM ".$this->table." WHERE created_at = :date And shops_id = :shops_id AND stocks_id = :x";
@@ -385,7 +385,7 @@ class Order extends Db{
     public function used_count($shop_id)
     {
         try{
-            for ($x=1; $x <= 10; $x++) { 
+            for ($x=1; $x <= 100; $x++) { 
                 for ($i=-7; $i <= -1; $i++) { 
                     // 先週-1日在庫抽出
                     $i_1 = $i - 1;
