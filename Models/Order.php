@@ -350,7 +350,7 @@ class Order extends Db{
     {
         try{
             
-            for ($x=1; $x <= 10; $x++) { 
+            for ($x=1; $x <= 100; $x++) { 
                 for ($i=0; $i <= 6; $i++) {
                     $date = date("Y-m-d", strtotime("$i day"));
                     $sql ="SELECT order_count FROM ".$this->table." WHERE created_at = :date AND shops_id = :shops_id AND stocks_id = :x";

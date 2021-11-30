@@ -52,7 +52,7 @@
                 </tr>
                 <?php for ($x=0; $x <= 100; $x++) :?>
                     <?php if(empty($params['stock'][$x]['name'])) :?>
-                        <?php exit ?>
+                        <?php continue ?>
                     <?php endif; ?>
                     <tr class="fs-5 text-center" >
                         <td style="width: 20%;"><?php echo $params['stock'][$x]['name']; ?></td>

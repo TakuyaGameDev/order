@@ -4,9 +4,7 @@
     if(empty($_SESSION['id']) || $_SESSION['id'] != 1){
         header('Location:login.php');
     }
-    // 商品名読み込み
-    require_once(ROOT_PATH .'Views/other/num_name.php');
-
+    
     // 日付
     require_once(ROOT_PATH .'Views/other/date.php');
 
@@ -19,6 +17,11 @@
     require_once(ROOT_PATH .'Controllers/OrderController.php');
     $order = new OrderController();
     $order_count = $order->order_count();
+
+    // 商品一覧
+    require_once(ROOT_PATH .'Controllers/StockController.php');
+    $stock = new StockController;
+    $names = $stock->stock();
 
 ?>
 <!DOCTYPE html>
@@ -51,9 +54,12 @@
                 <td><?php echo $ago[$i] ?><br>発注数</td>
             <?php endfor; ?>
         </tr>
-        <?php for ($x=1; $x <= 10; $x++) : ?>
+        <?php for ($x=1; $x <= 100; $x++) : ?>
+            <?php if(empty($names['stock'][$x-1]['name'])) :?>
+                <?php continue ?>
+            <?php endif; ?>
             <tr>
-                <td><?php echo $name[$x] ?></td>
+                <td><?php echo $names['stock'][$x-1]['name'] ?></td>
                 <?php for ($i=0; $i <= 6; $i++) : ?>
                     <td><?php if(isset($order_count['order_count'][$x][$i]['order_count'])){ echo $order_count['order_count'][$x][$i]['order_count'];}else{echo 0;} ?></td>
                 <?php endfor; ?>
