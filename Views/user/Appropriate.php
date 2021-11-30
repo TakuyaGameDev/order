@@ -14,7 +14,7 @@
     // 適正挿入
     $order->AppropriateIn();
     // 商品1週間分適正抽出
-    $params = $order->showAppropriate();
+    $stocks = $order->showAppropriate();
     // 使用量抽出
     $useds = $order->used_count();
     
@@ -22,7 +22,6 @@
     $stock = new StockController();
     // 商品一覧
     $params = $stock->stock();
-    
 ?>
 <!-- Ajax -->
 <script>
@@ -68,7 +67,7 @@
                                 <!-- 使用量 -->
                                 <td style="width: 5%;"><?php if(isset($useds['used'][$x][$i])){echo $useds['used'][$x][$i];}else{echo 0;} ?></td>
                                 <!-- 適正量 -->
-                                <td style="width: 6%;"><input type="number" class="Appropriate<?php echo $x.'_'.$i;?>" name="Appropriate<?php echo $x.'_'.$i;?>" style="width: 50px;" value="<?php if(isset($params['Appropriate'][$x-1][$i]['Appropriate_count'])){echo $params['Appropriate'][$x-1][$i]['Appropriate_count'];}else{echo 0;} ?>"></td>
+                                <td style="width: 6%;"><input type="number" class="Appropriate<?php echo $x.'_'.$i;?>" name="Appropriate<?php echo $x.'_'.$i;?>" style="width: 50px;" value="<?php if(isset($stocks['Appropriate'][$x-1][$i]['Appropriate_count'])){echo $stocks['Appropriate'][$x-1][$i]['Appropriate_count'];}else{echo 0;} ?>"></td>
                             <?php endfor; ?>                        
                         </tr>
                     <?php endfor; ?>
