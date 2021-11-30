@@ -15,12 +15,16 @@
     $order = new OrderController();
     // 在庫挿入&翌日以降発注
     $errors = $order->order();
-    // $order->order();
     // 在庫数一覧
-    $stock = $order->showstock();
+    $stock_count = $order->showstock();
     
     // 発注数一覧
     $order = $order->showorder();
+    require_once(ROOT_PATH .'Controllers/StockController.php');
+    $stock = new StockController;
+
+    // 商品一覧
+    $names = $stock->stock();
 
 ?>
 <!DOCTYPE html>
@@ -54,15 +58,18 @@
                             <th class="text-center"><?php echo $ago[$i]."<br>"."発注数"  ?></th> 
                         <?php endfor; ?>
                     </tr>
-                    <?php for ($x=1; $x <= 10; $x++) :?>
+                    <?php for ($x=1; $x <=100; $x++) :?>
+                        <?php if(empty($names['stock'][$x-1]['name'])) :?>
+                            <?php continue ?>
+                        <?php endif; ?>
                         <tr class="fs-5 text-center" >
                             <!-- 商品名 -->
-                            <td style="width: 20%;"><?php echo $name[$x]; ?></td>
+                            <td style="width: 20%;"><?php echo $names['stock'][$x-1]['name']; ?></td>
                             <!-- 前日発注数 -->
                             <td><?php if(isset($order['order'][$x][0]['order_count'])){ echo $order['order'][$x][0]['order_count']; }elseif(empty($order['order'][$x][0]['order_count'])){ echo 0; } ?></td>
                             <!-- 当日在庫と発注 -->
                             <?php for ($i=0; $i <= 0; $i++) :?>
-                                <td style="width: %; "><input type="number" name="stock<?php echo $x.'_'.$i;?>" style="width: 50px;" value="<?php if(isset($stock['stock'][$x][$i+1]['shop_stock_count'])){echo $stock['stock'][$x][$i+1]['shop_stock_count'];}else{echo 0;} ?>"></td>
+                                <td style="width: %; "><input type="number" name="stock<?php echo $x.'_'.$i;?>" style="width: 50px;" value="<?php if(isset($stock_count['stock'][$x][$i+1]['shop_stock_count'])){echo $stock_count['stock'][$x][$i+1]['shop_stock_count'];}else{echo 0;} ?>"></td>
                                 <td style="width: %;"><input type="number" name="order<?php echo $x.'_'.$i;?>" style="width: 50px; <?php if(isset($errors['errors'][$x][$x])){ echo 'border: 2px solid red;';} ?>" value="<?php if(isset($order['order'][$x][$i+1]['order_count'])){echo $order['order'][$x][$i+1]['order_count'];}else{echo 0;} ?>"></td>
                             <?php endfor; ?> 
                             <!-- 翌日以降 -->

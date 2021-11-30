@@ -16,129 +16,138 @@ class Order extends Db{
             // トランザクション
             $this->dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
             $this->dbh->beginTransaction();
-            
-            // 今日の在庫と同数確認
-            $date = date("Y-m-d", strtotime("0 day"));
-            $sql = "SELECT id FROM ".$this->table." WHERE shops_id = :shops_id AND stocks_id = :stocks_id AND created_at = :date";
-            $sth = $this->dbh->prepare($sql);
-            $sth->bindParam(':shops_id', $shops_id, PDO::PARAM_INT);
-            $sth->bindParam(':stocks_id', $stocks_id, PDO::PARAM_INT);
-            $sth->bindParam(':date', $date, PDO::PARAM_STR);
-            $sth->execute();
-            $id = $sth->fetch(PDO::FETCH_ASSOC);
-            
-            if(empty($id)) { // データが空なら
 
-                // 在庫挿入
-                $sql = "INSERT INTO ".$this->table."(`shops_id`, `stocks_id`, `shop_stock_count`, `created_at`) VALUES (:shops_id,:stocks_id,:shop_stock_count,:date)";
+            // stocks_idが存在するか確認
+            // $sql = "SELECT id FROM stocks WHERE id=:id";
+            // $sth = $this->dbh->prepare($sql);
+            // $sth->bindParam(':id', $stocks_id, PDO::PARAM_INT);
+            // $sth->execute();
+            // $stock_id = $sth->fetch(PDO::FETCH_ASSOC);
+            
+            // if(isset($stock_id)){
+                // 今日の在庫と同数確認
+                $date = date("Y-m-d", strtotime("0 day"));
+                $sql = "SELECT id FROM ".$this->table." WHERE shops_id = :shops_id AND stocks_id = :stocks_id AND created_at = :date";
                 $sth = $this->dbh->prepare($sql);
                 $sth->bindParam(':shops_id', $shops_id, PDO::PARAM_INT);
                 $sth->bindParam(':stocks_id', $stocks_id, PDO::PARAM_INT);
-                $sth->bindParam(':shop_stock_count', $shop_stock_count, PDO::PARAM_INT);
                 $sth->bindParam(':date', $date, PDO::PARAM_STR);
                 $sth->execute();
+                $id = $sth->fetch(PDO::FETCH_ASSOC);
                 
-            } else {
-                // 存在するなら在庫アップデート
-                $sql = "UPDATE ".$this->table." SET shop_stock_count=:shop_stock_count WHERE id=:id";
-                $sth = $this->dbh->prepare($sql);
-                $sth->bindParam(':id', $id['id'], PDO::PARAM_INT);
-                $sth->bindParam(':shop_stock_count', $shop_stock_count, PDO::PARAM_INT);
-                $sth->execute();
-            }
+                if(empty($id)) { // データが空なら
 
-             // 計算の為、適正抽出
-            $sql = "SELECT Appropriate_count FROM ".$this->table." WHERE created_at = :date And shops_id = :shops_id AND stocks_id = :stocks_id";
-            $sth = $this->dbh->prepare($sql);
-            $sth->bindParam(':shops_id', $shops_id, PDO::PARAM_INT);
-            $sth->bindParam(':stocks_id', $stocks_id, PDO::PARAM_INT);
-            $sth->bindParam(':date', $date, PDO::PARAM_STR);
-            $sth->execute();
-            $Appropriates = $sth->fetch(PDO::FETCH_ASSOC);
-
-            // 計算の為、前日発注数抽出
-            $dated_1 = date("Y-m-d", strtotime("-1 day"));
-            $sql = "SELECT order_count FROM ".$this->table." WHERE created_at = :dated_1 AND shops_id = :shops_id AND stocks_id = :stocks_id";
-            $sth = $this->dbh->prepare($sql);
-            $sth->bindParam(':shops_id', $shops_id, PDO::PARAM_INT);
-            $sth->bindParam(':stocks_id', $stocks_id, PDO::PARAM_INT);
-            $sth->bindParam(':dated_1', $dated_1, PDO::PARAM_STR);
-            $sth->execute();
-            $orders = $sth->fetch(PDO::FETCH_ASSOC);
-            
-            // NULLの場合は0にする
-            if($Appropriates == NULL){
-                $Appropriate = 0;
-            } else {
-                $Appropriate = $Appropriates['Appropriate_count'];
-            }
-            if($orders == NULL){
-                $order = 0;
-            } else {
-                $order = $orders['order_count'];
-            }
-            if($shop_stock_count == NULL){
-                $shop_stock_count = 0;
-            }
-            // 発注数計算
-            $Appropriate_order = $Appropriate - $order - $shop_stock_count;
-            // マイナスになったとき
-            if ($Appropriate_order < 0) {
-                $Appropriate_order = 0;
-            }
-
-// 処理追加
-// ここは違うテーブル
-            // 倉庫在庫抽出
-            $sql = "SELECT stock_count FROM stocks WHERE id = :stocks_id";
-            $sth = $this->dbh->prepare($sql);
-            $sth->bindParam(':stocks_id', $stocks_id, PDO::PARAM_INT);
-            $sth->execute();
-            $result = $sth->fetch(PDO::FETCH_ASSOC);
-
-            // 元の在庫から発注数を引く
-            $stock = $result['stock_count'];
-            $stocked = $stock - $Appropriate_order;
-
-            // 0ならreturnでエラー返す0挿入
-            if($stocked < 0){
-                for ($x=1; $x <= 10; $x++) { 
-                    if($stocks_id == $x){
-                        $error[$x] = $x;
-                    }
+                    // 在庫挿入
+                    $sql = "INSERT INTO ".$this->table."(`shops_id`, `stocks_id`, `shop_stock_count`, `created_at`) VALUES (:shops_id,:stocks_id,:shop_stock_count,:date)";
+                    $sth = $this->dbh->prepare($sql);
+                    $sth->bindParam(':shops_id', $shops_id, PDO::PARAM_INT);
+                    $sth->bindParam(':stocks_id', $stocks_id, PDO::PARAM_INT);
+                    $sth->bindParam(':shop_stock_count', $shop_stock_count, PDO::PARAM_INT);
+                    $sth->bindParam(':date', $date, PDO::PARAM_STR);
+                    $sth->execute();
+                    
+                } else {
+                    // 存在するなら在庫アップデート
+                    $sql = "UPDATE ".$this->table." SET shop_stock_count=:shop_stock_count WHERE id=:id";
+                    $sth = $this->dbh->prepare($sql);
+                    $sth->bindParam(':id', $id['id'], PDO::PARAM_INT);
+                    $sth->bindParam(':shop_stock_count', $shop_stock_count, PDO::PARAM_INT);
+                    $sth->execute();
                 }
-                // 発注数アップデート
-                $sql = "UPDATE ".$this->table." SET order_count=0 WHERE created_at = :date AND shops_id=:shops_id AND stocks_id=:stocks_id";
+
+                // 計算の為、適正抽出
+                $sql = "SELECT Appropriate_count FROM ".$this->table." WHERE created_at = :date And shops_id = :shops_id AND stocks_id = :stocks_id";
                 $sth = $this->dbh->prepare($sql);
                 $sth->bindParam(':shops_id', $shops_id, PDO::PARAM_INT);
                 $sth->bindParam(':stocks_id', $stocks_id, PDO::PARAM_INT);
                 $sth->bindParam(':date', $date, PDO::PARAM_STR);
                 $sth->execute();
+                $Appropriates = $sth->fetch(PDO::FETCH_ASSOC);
 
-                $this->dbh->commit(); 
-
-                return $error;
-                
-            } else {
-                // 在庫更新
-                $sql = "UPDATE stocks SET stock_count=:stock_count WHERE id=:stocks_id";
+                // 計算の為、前日発注数抽出
+                $dated_1 = date("Y-m-d", strtotime("-1 day"));
+                $sql = "SELECT order_count FROM ".$this->table." WHERE created_at = :dated_1 AND shops_id = :shops_id AND stocks_id = :stocks_id";
                 $sth = $this->dbh->prepare($sql);
-                $sth->bindParam(':stock_count', $stocked, PDO::PARAM_INT);
-                $sth->bindParam(':stocks_id', $stocks_id, PDO::PARAM_INT);
-                $sth->execute();
-
-                // 発注数アップデート
-                $sql = "UPDATE ".$this->table." SET order_count=:order_count WHERE created_at = :date AND shops_id=:shops_id AND stocks_id=:stocks_id";
-                $sth = $this->dbh->prepare($sql);
-                $sth->bindParam(':order_count', $Appropriate_order, PDO::PARAM_INT);
                 $sth->bindParam(':shops_id', $shops_id, PDO::PARAM_INT);
                 $sth->bindParam(':stocks_id', $stocks_id, PDO::PARAM_INT);
-                $sth->bindParam(':date', $date, PDO::PARAM_STR);
+                $sth->bindParam(':dated_1', $dated_1, PDO::PARAM_STR);
                 $sth->execute();
+                $orders = $sth->fetch(PDO::FETCH_ASSOC);
                 
-                $this->dbh->commit(); 
+                // NULLの場合は0にする
+                if($Appropriates == NULL){
+                    $Appropriate = 0;
+                } else {
+                    $Appropriate = $Appropriates['Appropriate_count'];
+                }
+                if($orders == NULL){
+                    $order = 0;
+                } else {
+                    $order = $orders['order_count'];
+                }
+                if($shop_stock_count == NULL){
+                    $shop_stock_count = 0;
+                }
+                // 発注数計算
+                $Appropriate_order = $Appropriate - $order - $shop_stock_count;
+                // マイナスになったとき
+                if ($Appropriate_order < 0) {
+                    $Appropriate_order = 0;
+                }
 
-            }          
+    // 処理追加
+    // ここは違うテーブル
+                // 倉庫在庫抽出
+                $sql = "SELECT stock_count FROM stocks WHERE id = :stocks_id";
+                $sth = $this->dbh->prepare($sql);
+                $sth->bindParam(':stocks_id', $stocks_id, PDO::PARAM_INT);
+                $sth->execute();
+                $result = $sth->fetch(PDO::FETCH_ASSOC);
+
+                // 元の在庫から発注数を引く
+                $stock = $result['stock_count'];
+                $stocked = $stock - $Appropriate_order;
+
+                // 0ならreturnでエラー返す0挿入
+                if($stocked < 0){
+                    for ($x=1; $x <= 10; $x++) { 
+                        if($stocks_id == $x){
+                            $error[$x] = $x;
+                        }
+                    }
+                    // 発注数アップデート
+                    $sql = "UPDATE ".$this->table." SET order_count=0 WHERE created_at = :date AND shops_id=:shops_id AND stocks_id=:stocks_id";
+                    $sth = $this->dbh->prepare($sql);
+                    $sth->bindParam(':shops_id', $shops_id, PDO::PARAM_INT);
+                    $sth->bindParam(':stocks_id', $stocks_id, PDO::PARAM_INT);
+                    $sth->bindParam(':date', $date, PDO::PARAM_STR);
+                    $sth->execute();
+
+                    $this->dbh->commit(); 
+
+                    return $error;
+                    
+                } else {
+                    // 在庫更新
+                    $sql = "UPDATE stocks SET stock_count=:stock_count WHERE id=:stocks_id";
+                    $sth = $this->dbh->prepare($sql);
+                    $sth->bindParam(':stock_count', $stocked, PDO::PARAM_INT);
+                    $sth->bindParam(':stocks_id', $stocks_id, PDO::PARAM_INT);
+                    $sth->execute();
+
+                    // 発注数アップデート
+                    $sql = "UPDATE ".$this->table." SET order_count=:order_count WHERE created_at = :date AND shops_id=:shops_id AND stocks_id=:stocks_id";
+                    $sth = $this->dbh->prepare($sql);
+                    $sth->bindParam(':order_count', $Appropriate_order, PDO::PARAM_INT);
+                    $sth->bindParam(':shops_id', $shops_id, PDO::PARAM_INT);
+                    $sth->bindParam(':stocks_id', $stocks_id, PDO::PARAM_INT);
+                    $sth->bindParam(':date', $date, PDO::PARAM_STR);
+                    $sth->execute();
+                    
+                    $this->dbh->commit(); 
+
+                }
+            // }   
 
         } catch (PDOException $e){
             $this->dbh->rollBack();

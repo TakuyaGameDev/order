@@ -20,7 +20,7 @@ class OrderController {
         $order = 'order';
         $under = '_';
         
-        for ($x=1; $x <= 10; $x++) { 
+        for ($x=1; $x <= 100; $x++) { 
             for ($i=0; $i <= 0; $i++) {
                 if(isset($_POST["$stock$x$under$i"])){
                     if($_POST["$stock$x$under$i"] < 0){
@@ -33,7 +33,7 @@ class OrderController {
                 }
             }
         }
-        for ($x=1; $x <= 10; $x++) { 
+        for ($x=1; $x <= 100; $x++) { 
             for ($i=1; $i <= 6; $i++) {
                 if(isset($_POST["$order$x$under$i"])){
                     if($_POST["$order$x$under$i"] < 0){
