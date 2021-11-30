@@ -324,16 +324,17 @@ class Order extends Db{
     public function showorder_history($shops_id)
     {
        try{
-           for ($x=1; $x <= 10; $x++) { 
+           for ($x=1; $x <= 100; $x++) {
                 for ($i=-7; $i <= -1; $i++) {
                     $date = date("Y-m-d", strtotime("$i day"));
-                    $sql = "SELECT order_count FROM ".$this->table." WHERE created_at = :date AND shops_id = :shops_id AND stocks_id = :x AND order_count IS NOT NULL ORDER BY id DESC LIMIT 1";
+                    $sql = "SELECT order_count FROM ".$this->table;
+                    $sql .= " WHERE created_at = :date AND shops_id = :shops_id AND stocks_id = :x AND order_count IS NOT NULL ORDER BY id DESC LIMIT 1";
                     $sth = $this->dbh->prepare($sql);
                     $sth->bindParam(':shops_id', $shops_id, PDO::PARAM_INT);
                     $sth->bindParam(':date', $date, PDO::PARAM_STR);
                     $sth->bindParam(':x', $x, PDO::PARAM_INT);
                     $sth->execute();
-                    $result[$x][] = $sth->fetch(PDO::FETCH_ASSOC);
+                    $result[$x-1][] = $sth->fetch(PDO::FETCH_ASSOC);
                }
            }
             return $result;

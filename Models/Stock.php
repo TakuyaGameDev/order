@@ -13,7 +13,7 @@
         public function stock()
         {
             try{
-                $sql = "SELECT * FROM ".$this->table." ORDER BY class";
+                $sql = "SELECT * FROM ".$this->table;
                 $sth = $this->dbh->prepare($sql);
                 $sth->execute();
                 $result = $sth->fetchAll(PDO::FETCH_ASSOC);

@@ -4,8 +4,6 @@
     if(empty($_SESSION['id']) || $_SESSION['id'] == 1){
         header('Location:login.php');
     }
-    // 商品名読み込み
-    require_once(ROOT_PATH .'Views/other/num_name.php');
 
     // 日付
     require_once(ROOT_PATH .'Views/other/date.php');
@@ -13,9 +11,16 @@
     // コントローラ
     require_once(ROOT_PATH .'Controllers/OrderController.php');
     $order = new OrderController();
+    // コントローラ
+    require_once(ROOT_PATH .'Controllers/StockController.php');
+    $stock = new StockController;
 
+    // 商品一覧
+    $params = $stock->stock();
     // 発注履歴
     $history = $order->showorder_history();
+       
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -45,9 +50,12 @@
                         <th class="text-center"><?php echo $before[$i]."<br>"."発注数"  ?></th> 
                     <?php endfor; ?>
                 </tr>
-                <?php for ($x=1; $x <= 10; $x++) :?>
+                <?php for ($x=0; $x <= 100; $x++) :?>
+                    <?php if(empty($params['stock'][$x]['name'])) :?>
+                        <?php exit ?>
+                    <?php endif; ?>
                     <tr class="fs-5 text-center" >
-                        <td style="width: 20%;"><?php echo $name[$x]; ?></td>
+                        <td style="width: 20%;"><?php echo $params['stock'][$x]['name']; ?></td>
                         <?php for ($i=0; $i <= 6; $i++) :?>
                             <td style="width: 11%;"><?php if(isset($history['history'][$x][$i]['order_count'])){echo $history['history'][$x][$i]['order_count'];}else{echo 0;}?></td>
                         <?php endfor; ?>                        
@@ -55,7 +63,7 @@
                 <?php endfor; ?>
             </table>
             <div class="d-flex justify-content-end">
-                <a href="index.php" class="btn btn-primary me-5"  role="button">　戻る　</a>
+                <a href="index.php" class="btn btn-primary me-5" role="button">　戻る　</a>
             </div>
         </div>
     </div>
