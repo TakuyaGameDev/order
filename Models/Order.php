@@ -128,10 +128,22 @@ class Order extends Db{
                     return $error;
                     
                 } else {
+                    // 元在庫抽出
+                    $sql = "SELECT order_count FROM ".$this->table." WHERE created_at=:date AND shops_id=:shops_id AND stocks_id=:stocks_id";
+                    $sth = $this->dbh->prepare($sql);
+                    $sth->bindParam(':date', $date, PDO::PARAM_STR);
+                    $sth->bindParam(':shops_id', $shops_id, PDO::PARAM_INT);
+                    $sth->bindParam(':stocks_id', $stocks_id, PDO::PARAM_INT);
+                    $sth->execute();
+                    $olds = $sth->fetch(PDO::FETCH_ASSOC);
+
+                    $old_order = $olds['order_count'];
+                    $new_order = $Appropriate_order - $old_order;
+                    $new_stock = $stock - $new_order;
                     // 在庫更新
                     $sql = "UPDATE stocks SET stock_count=:stock_count WHERE id=:stocks_id";
                     $sth = $this->dbh->prepare($sql);
-                    $sth->bindParam(':stock_count', $stocked, PDO::PARAM_INT);
+                    $sth->bindParam(':stock_count', $new_stock, PDO::PARAM_INT);
                     $sth->bindParam(':stocks_id', $stocks_id, PDO::PARAM_INT);
                     $sth->execute();
 
